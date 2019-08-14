@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
 
 namespace MyShop.WebUI.Controllers
@@ -12,9 +13,10 @@ namespace MyShop.WebUI.Controllers
     {
 
         ProductRepository context;
-
+        ProductCategoryRepository ProductCategories;//for loading the categoryies from database
         public ProductManagerController(){
             context = new ProductRepository();
+            ProductCategories = new ProductCategoryRepository();
         }
 
         // GET: ProductManager
@@ -29,8 +31,10 @@ namespace MyShop.WebUI.Controllers
         //just to DISPLAY it as the form page in order to fill in the product details
         public ActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+            viewModel.Product= new Product();
+            viewModel.productCategories = ProductCategories.Collection();
+            return View(viewModel);
         }
 
         //this endpoint is to have those filled in detailes to be POSTed
@@ -57,7 +61,10 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
-                return View(product);
+                ProductManagerViewModel viewModel = new ProductManagerViewModel();
+                viewModel.Product = product;
+                viewModel.productCategories = ProductCategories.Collection();
+                return View(viewModel);
             }
         }
 

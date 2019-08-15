@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
-
+using MyShop.Core.Contracts;
 namespace MyShop.DataAccess.InMemory
 {
-    public class InMemoryRepository<T> where T:BaseEntity
+    public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
         ObjectCache cache = MemoryCache.Default;
         List<T> items;
@@ -43,7 +43,7 @@ namespace MyShop.DataAccess.InMemory
             }
             else
             {
-                throw new Exception(className+" not found");
+                throw new Exception(className + " not found");
             }
         }
 

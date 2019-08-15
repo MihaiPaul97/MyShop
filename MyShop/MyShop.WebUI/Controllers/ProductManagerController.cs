@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MyShop.Core.Contracts;
 using MyShop.Core.Models;
 using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
@@ -12,11 +13,12 @@ namespace MyShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
 
-        InMemoryRepository<Product> context;
-        InMemoryRepository<ProductCategory> ProductCategories;//for loading the categoryies from database
-        public ProductManagerController(){
-            context = new InMemoryRepository<Product>();
-            ProductCategories = new InMemoryRepository<ProductCategory>();
+        IRepository<Product> context;
+        IRepository<ProductCategory> ProductCategories;//for loading the categoryies from database
+        public ProductManagerController(IRepository<Product> productContext, IRepository<ProductCategory> productCategoryContext)
+        {
+            context = productContext;
+            ProductCategories = productCategoryContext;
         }
 
         // GET: ProductManager

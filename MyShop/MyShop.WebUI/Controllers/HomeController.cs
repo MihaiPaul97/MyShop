@@ -1,5 +1,6 @@
 ﻿using MyShop.Core.Contracts;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +12,30 @@ namespace MyShop.WebUI.Controllers
     public class HomeController : Controller
     {
         IRepository<Product> context;
-        IRepository<ProductCategory> ProductCategories;//for loading the categoryies from database
+        IRepository<ProductCategory> productCategories;//for loading the categoryies from database
         public HomeController(IRepository<Product> productContext, IRepository<ProductCategory> productCategoryContext)
         {
             context = productContext;
-            ProductCategories = productCategoryContext;
+            productCategories = productCategoryContext;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(String Category=null)
         {
-            List<Product> products = context.Collection().ToList();
-            return View(products);
+            List<Product> products;
+            List<ProductCategory> categories=productCategories.Collection().ToList();
+            if (Category == null)
+            {
+               products= context.Collection().ToList();
+            }
+            else {
+                //Collection() method returns IQueriable object so we can apply lambda query on it
+                products = context.Collection().Where(p=>p.Category == Category).ToList();
+            }
+
+            ProductListViewModel model = new ProductListViewModel();
+            model.Products = products;
+            model.productCategories = categories;
+            return View(model);
         }
 
         public ActionResult Details(string Id) {

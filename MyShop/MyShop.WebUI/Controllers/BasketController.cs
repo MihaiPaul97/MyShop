@@ -10,11 +10,13 @@ namespace MyShop.WebUI.Controllers
 {
     public class BasketController : Controller
     {
+        IRepository<Costumer> costumers;
         IBasketService basketService;
         IOrderService orderService;
-        public BasketController(IBasketService BasketService,IOrderService OrderService) {
+        public BasketController(IBasketService BasketService,IOrderService OrderService,IRepository<Costumer> Costumers) {
             this.basketService = BasketService;
             this.orderService = OrderService;
+            this.costumers = Costumers;
         }
         // GET: Basket
         public ActionResult Index()
@@ -39,15 +41,39 @@ namespace MyShop.WebUI.Controllers
             return PartialView(basketSummary);
         }
 
+        [Authorize]//checks if the user is loged in, IF NOT, it would send the user to the login page
         public ActionResult Checkout() {
-            return View();
+            //User.Identity.Name (a built in asp .net security principle)-> from here we get the loged in email
+            Costumer costumer = costumers.Collection().FirstOrDefault(c => c.Email == User.Identity.Name);
+            if (costumer != null) {
+                Order order = new Order()
+                {
+                    Email=costumer.Email,
+                    City=costumer.City,
+                    State=costumer.State,
+                    Street=costumer.Street,
+                    FirstName=costumer.FirstName,
+                    Surname=costumer.LastName,
+                    ZipCode=costumer.ZipCode
+                };
+
+                return View(order);//for autofilling the user data in the checkout page
+            }
+            else
+            {
+                return RedirectToAction("Error");
+            }
+            
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult Checkout(Order order){
 
             var basketItems = basketService.GetBasketItems(this.HttpContext);
             order.OrderStatus = "Order Created";
+            //Just to make sure that we are linking the actual costumer's email with the current order
+            order.Email = User.Identity.Name;
 
             //process payment
             order.OrderStatus = "Payment Processed";
